@@ -14,8 +14,8 @@ def run_git(cmds):
 
 def create_branch():
     print(f"📦 Creating and switching to branch {BRANCH_NAME}...")
-    run_git(["checkout", "main"])
-    run_git(["pull", "origin", "main"])
+    run_git(["checkout", "master"])
+    run_git(["pull", "origin", "master"])
     run_git(["checkout", "-b", BRANCH_NAME])
     print(f"✅ Branch {BRANCH_NAME} ready.")
     with open(".branch_name", "w") as f:
