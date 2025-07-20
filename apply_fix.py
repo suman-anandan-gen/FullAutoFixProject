@@ -13,6 +13,17 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
+def extract_code_block(text):
+    # Extract code between triple backticks
+    code_blocks = re.findall(r"```(?:csharp)?\s*([\s\S]*?)```", text, re.IGNORECASE)
+    if code_blocks:
+        return code_blocks[0].strip()
+
+    # Fallback: Keep only lines that resemble C# code
+    lines = text.splitlines()
+    code_lines = [line for line in lines if line.strip() and not line.strip().startswith("//") and not re.match(r'^[A-Za-z ]+:', line.strip())]
+    return "\n".join(code_lines).strip()
+
 def call_together_ai(file_path, code_context, error_line, exception, message):
     prompt = f"""
 You're a senior C# engineer. A file `{file_path}` has an error at line {error_line}:
@@ -24,7 +35,7 @@ Here is the code context:
 
 {code_context}
 
-Return the corrected version of this code block only — no explanation.
+Please return ONLY the corrected code block — no explanation, no markdown, no headers, no comments. Just the fixed code lines that can be pasted directly.
 """
     response = requests.post(
         "https://api.together.xyz/v1/chat/completions",
@@ -40,7 +51,9 @@ Return the corrected version of this code block only — no explanation.
         },
     )
     response.raise_for_status()
-    return response.json()["choices"][0]["message"]["content"].strip()
+    raw = response.json()["choices"][0]["message"]["content"].strip()
+    return extract_code_block(raw)
+
 
 def parse_log_line(line):
     match = re.match(r'\[ERROR\] \[(.*?)\] \[(.*?):(\d+)\] (\w+): (.*)', line)
@@ -60,7 +73,10 @@ def apply_patch(file_path, start, end, replacement_block):
     replacement_lines = [line + "\n" if not line.endswith("\n") else line for line in replacement_block.strip().splitlines()]
     with open(file_path, "r") as f:
         lines = f.readlines()
-    backup_path = file_path + ".bak"
+    dir_name = os.path.dirname(file_path)
+    base_name = os.path.basename(file_path)
+    backup_dir = os.path.join(dir_name, "backup")
+    backup_path = os.path.join(backup_dir, base_name)
     with open(backup_path, "w") as f:
         f.writelines(lines)
     updated = lines[:start] + replacement_lines + lines[end:]

@@ -18,6 +18,18 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
+def extract_code_block(text):
+    # Extract code between triple backticks
+    code_blocks = re.findall(r"```(?:csharp)?\s*([\s\S]*?)```", text, re.IGNORECASE)
+    if code_blocks:
+        return code_blocks[0].strip()
+
+    # Fallback: Keep only lines that resemble C# code
+    lines = text.splitlines()
+    code_lines = [line for line in lines if line.strip() and not line.strip().startswith("//") and not re.match(r'^[A-Za-z ]+:', line.strip())]
+    return "\n".join(code_lines).strip()
+
+
 def call_together_ai(file_path, code_context, error_line, exception, message):
     prompt = f"""
 You're a senior C# engineer. A file `{file_path}` has an error at line {error_line}:
@@ -29,7 +41,7 @@ Here is the code context:
 
 {code_context}
 
-Please return the fixed version of this block. Don't explain anything — just return the corrected code.
+Please return ONLY the corrected code block — no explanation, no markdown, no headers, no comments. Just the fixed code lines that can be pasted directly.
 """
     response = client.chat.completions.create(
         model=MODEL_NAME,
@@ -40,7 +52,9 @@ Please return the fixed version of this block. Don't explain anything — just r
         temperature=0.2,
         max_tokens=512
     )
-    return response.choices[0].message.content.strip()
+    raw = response.choices[0].message.content.strip()
+    return extract_code_block(raw)
+
 
 def parse_log_line(line):
     match = re.match(
