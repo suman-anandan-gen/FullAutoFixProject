@@ -73,10 +73,14 @@ def apply_patch(file_path, start, end, replacement_block):
     replacement_lines = [line + "\n" if not line.endswith("\n") else line for line in replacement_block.strip().splitlines()]
     with open(file_path, "r") as f:
         lines = f.readlines()
-    dir_name = os.path.dirname(file_path)
-    base_name = os.path.basename(file_path)
-    backup_dir = os.path.join(dir_name, "backup")
-    backup_path = os.path.join(backup_dir, base_name)
+    backup_dir = os.path.join(SOURCE_DIR, "backup")
+    os.makedirs(backup_dir, exist_ok=True)
+
+    # Backup file path is CourseApp/backup/<original_filename>
+    backup_path = os.path.join(backup_dir, os.path.basename(file_path))
+    with open(backup_path, "w") as f:
+        f.writelines(lines)
+
     with open(backup_path, "w") as f:
         f.writelines(lines)
     updated = lines[:start] + replacement_lines + lines[end:]
