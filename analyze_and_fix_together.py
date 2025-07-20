@@ -1,15 +1,17 @@
 import os
 import re
 import requests
+from together import Together
 
 # CONFIGURATION
 SOURCE_DIR = "CourseApp"
 LOG_FILE = os.path.join(SOURCE_DIR, "logs", "errors.log")
 MAX_CONTEXT_LINES = 10
+MODEL_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
-TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions"
-TOGETHER_API_KEY = os.environ.get("TOGETHER_API_KEY")
-MODEL_NAME = "deepseek-coder-33b-instruct"
+# Fetch API key from environment
+TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
+client = Together(api_key=TOGETHER_API_KEY)
 
 HEADERS = {
     "Authorization": f"Bearer {TOGETHER_API_KEY}",
@@ -25,27 +27,20 @@ Message: {message}
 
 Here is the code context:
 
-```
 {code_context}
-```
 
 Please return the fixed version of this block. Don't explain anything — just return the corrected code.
 """
-    payload = {
-        "model": MODEL_NAME,
-        "messages": [
+    response = client.chat.completions.create(
+        model=MODEL_NAME,
+        messages=[
             {"role": "system", "content": "You are a helpful assistant that fixes C# code bugs."},
             {"role": "user", "content": prompt}
         ],
-        "temperature": 0.2,
-        "max_tokens": 512,
-        "stop": None
-    }
-
-    response = requests.post(TOGETHER_API_URL, headers=HEADERS, json=payload)
-    response.raise_for_status()
-
-    return response.json()["choices"][0]["message"]["content"]
+        temperature=0.2,
+        max_tokens=512
+    )
+    return response.choices[0].message.content.strip()
 
 def parse_log_line(line):
     match = re.match(

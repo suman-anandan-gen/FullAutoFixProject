@@ -1,15 +1,13 @@
 import os
 import re
 import requests
-import uuid
 
 SOURCE_DIR = "CourseApp"
 LOG_FILE = os.path.join(SOURCE_DIR, "logs", "errors.log")
 MAX_CONTEXT_LINES = 10
-TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions"
-TOGETHER_API_KEY = os.environ.get("TOGETHER_API_KEY")
-MODEL_NAME = "deepseek-coder-33b-instruct"
+MODEL_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
+TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
 HEADERS = {
     "Authorization": f"Bearer {TOGETHER_API_KEY}",
     "Content-Type": "application/json"
@@ -24,32 +22,28 @@ Message: {message}
 
 Here is the code context:
 
-```
 {code_context}
-```
 
 Return the corrected version of this code block only — no explanation.
 """
-    payload = {
-        "model": MODEL_NAME,
-        "messages": [
-            {"role": "system", "content": "You are a helpful assistant that fixes C# bugs."},
-            {"role": "user", "content": prompt}
-        ],
-        "temperature": 0.2,
-        "max_tokens": 512,
-    }
-
-    response = requests.post(TOGETHER_API_URL, headers=HEADERS, json=payload)
+    response = requests.post(
+        "https://api.together.xyz/v1/chat/completions",
+        headers=HEADERS,
+        json={
+            "model": MODEL_NAME,
+            "messages": [
+                {"role": "system", "content": "You are a helpful assistant that fixes C# bugs."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.2,
+            "max_tokens": 512,
+        },
+    )
     response.raise_for_status()
-
     return response.json()["choices"][0]["message"]["content"].strip()
 
 def parse_log_line(line):
-    match = re.match(
-        r'\[ERROR\] \[(.*?)\] \[(.*?):(\d+)\] (\w+): (.*)',
-        line
-    )
+    match = re.match(r'\[ERROR\] \[(.*?)\] \[(.*?):(\d+)\] (\w+): (.*)', line)
     if match:
         _, file_name, line_num, ex_type, message = match.groups()
         return file_name, int(line_num), ex_type, message
