@@ -18,7 +18,13 @@
    python analyze_and_fix_together.py   # Gets a fix
    python apply_fix.py                  # Applies it to code
    python create_pr.py                  # Creates git commit + PR
-   ```
+   import subprocess
+
+   subprocess.run(["python", "create_branch.py"])
+   subprocess.run(["python", "analyze_and_fix_together.py"])
+   subprocess.run(["python", "apply_fix.py"])
+   subprocess.run(["python", "create_pr.py"])
+      ```
 
 ---
 
