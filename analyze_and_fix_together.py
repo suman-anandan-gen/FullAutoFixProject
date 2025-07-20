@@ -62,35 +62,63 @@ def get_code_context(file_path, error_line, context_lines=MAX_CONTEXT_LINES):
     except FileNotFoundError:
         return ""
 
-def analyze_latest_error():
+def analyze_all_errors():
+    if not os.path.exists(LOG_FILE):
+        print(f"❌ Log file not found: {LOG_FILE}")
+        return
+
     with open(LOG_FILE, "r") as f:
         lines = f.readlines()
 
-    last_error = lines[-1].strip()
-    result = parse_log_line(last_error)
+    # Filter only error lines and remove duplicates
+    error_lines = []
+    seen_errors = set()
+    for line in lines:
+        line = line.strip()
+        if line and "[ERROR]" in line:
+            # Create a key from file, line number and exception to avoid duplicates
+            result = parse_log_line(line)
+            if result:
+                file_name, line_num, exception, message = result
+                error_key = f"{file_name}:{line_num}:{exception}"
+                if error_key not in seen_errors:
+                    error_lines.append(line)
+                    seen_errors.add(error_key)
 
-    if not result:
-        print("No valid log entry found.")
+    if not error_lines:
+        print("No valid error logs found.")
         return
 
-    file_name, line_num, exception, message = result
-    source_path = os.path.join(SOURCE_DIR, file_name)
+    print(f"📋 Found {len(error_lines)} unique errors to analyze\n")
 
-    if not os.path.exists(source_path):
-        print(f"Source file not found: {source_path}")
-        return
+    for index, error_line in enumerate(error_lines, 1):
+        result = parse_log_line(error_line)
+        if not result:
+            continue
 
-    context = get_code_context(source_path, line_num)
+        file_name, line_num, exception, message = result
+        source_path = os.path.join(SOURCE_DIR, file_name)
 
-    print(f"\n🔍 Analyzing {file_name}:{line_num} — {exception}")
-    print("Querying Together AI...\n")
+        if not os.path.exists(source_path):
+            print(f"❌ Source file not found: {source_path}")
+            continue
 
-    suggestion = call_together_ai(file_name, context, line_num, exception, message)
-    print("✅ AI Suggestion:\n")
-    print(suggestion)
+        context = get_code_context(source_path, line_num)
+
+        print(f"\n🔍 [{index}/{len(error_lines)}] Analyzing {file_name}:{line_num} — {exception}")
+        print(f"Message: {message}")
+        print("Querying Together AI...\n")
+
+        try:
+            suggestion = call_together_ai(file_name, context, line_num, exception, message)
+            print("✅ AI Suggestion:\n")
+            print(suggestion)
+            print("\n" + "="*50 + "\n")
+        except Exception as e:
+            print(f"❌ Error getting AI suggestion: {e}\n")
 
 if __name__ == "__main__":
     if not TOGETHER_API_KEY:
         print("❌ TOGETHER_API_KEY is not set in environment.")
     else:
-        analyze_latest_error()
+        analyze_all_errors()  # Replace analyze_latest_error() with analyze_all_errors()

@@ -69,43 +69,76 @@ def apply_patch(file_path, start, end, replacement_block):
     print(f"\n✅ Patch applied to {file_path}")
     print(f"📦 Backup saved to: {backup_path}")
 
-def analyze_and_patch():
+def analyze_and_patch_all():
+    if not os.path.exists(LOG_FILE):
+        print(f"❌ Log file not found: {LOG_FILE}")
+        return
+
     with open(LOG_FILE, "r") as f:
         lines = f.readlines()
 
-    last_error = lines[-1].strip()
-    result = parse_log_line(last_error)
+    # Filter only error lines and remove duplicates
+    error_lines = []
+    seen_errors = set()
+    for line in lines:
+        line = line.strip()
+        if line and "[ERROR]" in line:
+            result = parse_log_line(line)
+            if result:
+                file_name, line_num, exception, message = result
+                error_key = f"{file_name}:{line_num}:{exception}"
+                if error_key not in seen_errors:
+                    error_lines.append(line)
+                    seen_errors.add(error_key)
 
-    if not result:
-        print("❌ No valid error log found.")
+    if not error_lines:
+        print("No valid error logs found.")
         return
 
-    file_name, line_num, exception, message = result
-    source_path = os.path.join(SOURCE_DIR, file_name)
+    print(f"📋 Found {len(error_lines)} unique errors to fix\n")
 
-    if not os.path.exists(source_path):
-        print(f"❌ File not found: {source_path}")
-        return
+    for index, error_line in enumerate(error_lines, 1):
+        result = parse_log_line(error_line)
+        if not result:
+            continue
 
-    lines, start, end, code_context_lines = get_code_context_lines(source_path, line_num)
-    code_context = "".join(code_context_lines)
+        file_name, line_num, exception, message = result
+        source_path = os.path.join(SOURCE_DIR, file_name)
 
-    print(f"\n🔍 Error in {file_name}:{line_num} — {exception}")
-    print("Calling Together AI...\n")
+        if not os.path.exists(source_path):
+            print(f"❌ File not found: {source_path}")
+            continue
 
-    try:
-        ai_patch = call_together_ai(file_name, code_context, line_num, exception, message)
-        print("✅ AI Suggestion:\n")
-        print(ai_patch)
-    except Exception as e:
-        print("❌ Error from Together AI:", e)
-        return
+        lines, start, end, code_context_lines = get_code_context_lines(source_path, line_num)
+        code_context = "".join(code_context_lines)
 
-    print("\n🔧 Applying patch...")
-    apply_patch(source_path, start, end, ai_patch)
+        print(f"\n🔍 [{index}/{len(error_lines)}] Analyzing {file_name}:{line_num} — {exception}")
+        print(f"Message: {message}")
+        print("Calling Together AI...\n")
+
+        try:
+            ai_patch = call_together_ai(file_name, code_context, line_num, exception, message)
+            print("✅ AI Suggestion:\n")
+            print(ai_patch)
+            
+            print("\n🔧 Applying patch...\n")
+            apply_patch(source_path, start, end, ai_patch)
+            
+            # Ask for confirmation before applying patch
+            # response = input("\n⚠️ Apply this patch? (y/n): ").lower().strip()
+            # if response == 'y':
+            #     print("\n🔧 Applying patch...")
+            #     apply_patch(source_path, start, end, ai_patch)
+            # else:
+            #     print("\n⏭️ Skipping this patch...")
+            
+            print("\n" + "="*50 + "\n")
+            
+        except Exception as e:
+            print(f"❌ Error from Together AI: {e}\n")
 
 if __name__ == "__main__":
     if not TOGETHER_API_KEY:
         print("❌ TOGETHER_API_KEY environment variable not set.")
     else:
-        analyze_and_patch()
+        analyze_and_patch_all()  # Changed from analyze_and_patch()
