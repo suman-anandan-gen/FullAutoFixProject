@@ -7,7 +7,7 @@ SOURCE_DIR = "CourseApp"
 LOG_FILE = os.path.join(SOURCE_DIR, "logs", "errors.log")
 MAX_CONTEXT_LINES = 10
 TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions"
-TOGETHER_API_KEY = "tgp_v1_b7wXuimJPbA0M4AqmxnsOkjSdN8Y11LQq1a9U3YXdno"
+TOGETHER_API_KEY = os.environ.get("TOGETHER_API_KEY")
 MODEL_NAME = "deepseek-coder-33b-instruct"
 
 HEADERS = {
