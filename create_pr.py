@@ -41,7 +41,7 @@ def create_pull_request(branch_name):
     data = {
         "title": PR_TITLE,
         "head": branch_name,
-        "base": "main",
+        "base": "master",
         "body": PR_BODY
     }
     response = requests.post(url, headers=headers, json=data)
