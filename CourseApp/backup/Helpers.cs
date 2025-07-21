@@ -4,23 +4,18 @@ public static class Helpers
 {
 public static string Normalize(string input)
 {
- try
- {
- if(input == null)
- throw new ArgumentNullException(nameof(input), "Input cannot be null.");
+    try
+    {
+        if(input == null)
+            return ""; // Return empty string if input is null
 
- return input.ToUpper();
- }
- catch (ArgumentNullException ex)
- {
- Logger.LogError(ex);
- throw;
- }
- catch (Exception ex)
- {
- Logger.LogError(ex);
- throw;
- }
+        return input.ToUpper();
+    }
+    catch (Exception ex)
+    {
+        Logger.LogError(ex);
+        throw;
+    }
 }
 
     public static void Validate(string input)

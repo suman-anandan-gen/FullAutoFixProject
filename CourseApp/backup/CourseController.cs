@@ -6,7 +6,6 @@ public void HandleRequest()
 {
     try
     {
-        string input = "example"; // This line was missing, causing the FormatException
         string[] courses = new string[2];
         if (courses.Length > 5)
         {
@@ -16,11 +15,6 @@ public void HandleRequest()
         {
             Console.WriteLine("Array index out of range.");
         }
-    }
-    catch (FormatException ex)
-    {
-        Logger.LogError(ex);
-        throw; // Optionally rethrow or handle as needed
     }
     catch (Exception ex)
     {
