@@ -4,7 +4,7 @@ import requests
 
 SOURCE_DIR = "CourseApp"
 LOG_FILE = os.path.join(SOURCE_DIR, "logs", "errors.log")
-MAX_CONTEXT_LINES = 20
+MAX_CONTEXT_LINES = 10
 MODEL_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
 TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
