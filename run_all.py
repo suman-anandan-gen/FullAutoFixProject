@@ -19,19 +19,19 @@ except Exception as e:
     print("❌ Failed in create_branch.py:", e)
     sys.exit(1)
 
-# === STEP 2: ANALYZE ERROR ===
-try:
-    from analyze_and_fix_together import analyze_all_errors
-    print("\n🔍 Step 2: Analyzing latest error log...")
-    analyze_all_errors()
-except Exception as e:
-    print("❌ Failed in analyze_and_fix_together.py:", e)
-    sys.exit(1)
+# # === STEP 2: ANALYZE ERROR ===
+# try:
+#     from analyze_and_fix_together import analyze_all_errors
+#     print("\n🔍 Step 2: Analyzing latest error log...")
+#     analyze_all_errors()
+# except Exception as e:
+#     print("❌ Failed in analyze_and_fix_together.py:", e)
+#     sys.exit(1)
 
-# === STEP 3: APPLY FIX ===
+# === STEP 3: analyze and APPLY FIX ===
 try:
     from apply_fix import analyze_and_patch_all
-    print("\n🛠 Step 3: Applying patch...")
+    print("\n🛠 Step 2: Applying patch...")
     analyze_and_patch_all()
 except Exception as e:
     print("❌ Failed in apply_fix.py:", e)
@@ -40,7 +40,7 @@ except Exception as e:
 # === STEP 4: COMMIT AND CREATE PR ===
 try:
     from create_pr import commit_changes, create_pull_request, get_branch_name
-    print("\n📤 Step 4: Committing and creating PR...")
+    print("\n📤 Step 3: Committing and creating PR...")
     branch = get_branch_name()
     commit_changes()
     create_pull_request(branch)
