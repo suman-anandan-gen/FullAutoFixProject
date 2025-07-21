@@ -4,12 +4,28 @@ public static class Helpers
 {
     public static string Normalize(string input)
     {
-        return input.ToUpper(); // NullReferenceException if input is null
+        try
+        {
+            return input.ToUpper(); // NullReferenceException if input is null
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex);
+            throw;
+        }
     }
 
     public static void Validate(string input)
     {
-        if (input == null)
-            throw new ArgumentNullException(nameof(input)); // ArgumentNullException
+        try
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input)); // ArgumentNullException
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex);
+            throw;
+        }
     }
 }

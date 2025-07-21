@@ -6,20 +6,44 @@ public class CourseService
 {
     public void Divide()
     {
-        int a = 10;
-        int b = 0;
-        int result = a / b; // DivideByZeroException
+        try
+        {
+            int a = 10;
+            int b = 0;
+            int result = a / b; // DivideByZeroException
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex);
+            throw;
+        }
     }
 
     public void NullCheck()
     {
-        string instructor = null;
-        Console.WriteLine(instructor.Length); // NullReferenceException
+        try
+        {
+            string instructor = null;
+            Console.WriteLine(instructor.Length); // NullReferenceException
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex);
+            throw;
+        }
     }
 
     public void FindCourse()
     {
-        List<string> courses = new List<string>();
-        var course = courses.First(c => c == "Math"); // InvalidOperationException
+        try
+        {
+            List<string> courses = new List<string>();
+            var course = courses.First(c => c == "Math"); // InvalidOperationException
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex);
+            throw;
+        }
     }
 }
