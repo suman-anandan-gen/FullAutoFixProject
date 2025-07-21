@@ -13,17 +13,33 @@ HEADERS = {
 }
 
 def extract_code_block(text):
-    # Extract code between triple backticks or fallback to C#-like lines
-    code_blocks = re.findall(r"``````", text, re.IGNORECASE)
-    if code_blocks:
-        return code_blocks[0].strip()
+    # Get all C#-style code blocks between triple-backticks
+    blocks = re.findall(r"``````", text, re.IGNORECASE)
+    code_candidate = None
+    for block in blocks:
+        lines = block.strip().split('\n')
+        # Heuristic: Look for line that looks like a C# method
+        for idx, line in enumerate(lines):
+            if re.match(r'\s*(public|private|protected|internal)\s+[\w<>,$$$$\s]+\s+\w+$$[^)]*$$\s*{', line):
+                # If found, return the whole block from this line
+                code_candidate = "\n".join(lines[idx:])
+                break
+        if code_candidate:
+            return code_candidate.strip()
+    # As fallback, strip any markdown, explanations etc.
     lines = text.splitlines()
-    code_lines = [
-        line for line in lines if line.strip()
-        and not line.strip().startswith("//")
-        and not re.match(r'^[A-Za-z ]+:', line.strip())
-    ]
-    return "\n".join(code_lines).strip()
+    filtered = []
+    in_method = False
+    for line in lines:
+        # Line looks like C# method declaration
+        if re.match(r'\s*(public|private|protected|internal)\s+[\w<>,$$$$\s]+\s+\w+$$[^)]*$$\s*{', line):
+            in_method = True
+        if in_method:
+            filtered.append(line)
+        # Simple: end method if lone '}' on its own line
+        if in_method and line.strip() == '}':
+            break
+    return "\n".join(filtered).strip()
 
 def call_together_ai(file_path, method_context, error_line, exception, message):
     prompt = f"""
