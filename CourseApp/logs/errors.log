@@ -2,3 +2,5 @@
 [ERROR] [2025-07-20 15:00:45] [CourseController.cs:6] IndexOutOfRangeException: Index was outside the bounds of the array.
 [ERROR] [2025-07-20 16:02:18] [CourseService.cs:8] DivideByZeroException: Attempted to divide by zero.
 [ERROR] [2025-07-20 16:20:10] [CourseController.cs:6] FormatException: Input string was not in a correct format.
+[ERROR] [2025-07-20 14:32:01] [Helpers.cs:12] NullReferenceException: Object reference not set to an instance of an object.
+[ERROR] [2025-07-20 15:45:33] [Helpers.cs:9] ArgumentNullException: Value cannot be null. (Parameter 'input')
