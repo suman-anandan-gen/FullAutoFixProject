@@ -2,7 +2,7 @@ import os
 import subprocess
 import requests
 
-REPO_OWNER = "Akshita-solanki"
+REPO_OWNER = "suman-anandan-gen"
 REPO_NAME = "FullAutoFixProject"
 GITHUB_API_URL = "https://api.github.com"
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
