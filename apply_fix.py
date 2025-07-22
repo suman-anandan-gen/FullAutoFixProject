@@ -1,12 +1,16 @@
 import os
 import re
 import requests
+import urllib3
+
+# Disable SSL warnings when verify=False is used
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 SOURCE_DIR = "CourseApp"
 LOG_FILE = os.path.join(SOURCE_DIR, "logs", "errors.log")
 MAX_CONTEXT_LINES = 20
 MODEL_NAME = "mistralai/Mixtral-8x7B-Instruct-v0.1"
-TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
+TOGETHER_API_KEY = "7f41b8a3d7078c14e032cee4f5e7b99b4d1ba5417c3145b1a91edbc48e0218ed"
 
 HEADERS = {
     "Authorization": f"Bearer {TOGETHER_API_KEY}",
@@ -110,6 +114,7 @@ Return the complete fixed method:"""
             "max_tokens": 1024,
         },
         timeout=60,
+        verify=False
     )
     
     response.raise_for_status()
