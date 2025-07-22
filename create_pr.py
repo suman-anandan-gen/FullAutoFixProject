@@ -32,7 +32,7 @@ def commit_changes():
     run_git(["push", "--set-upstream", "origin", get_branch_name()])
 
 def create_pull_request(branch_name):
-    print("📬 Creating pull request...")
+    print("📬 Creating pull request..." + GITHUB_TOKEN)
     url = f"{GITHUB_API_URL}/repos/{REPO_OWNER}/{REPO_NAME}/pulls"
     headers = {
         "Authorization": f"token {GITHUB_TOKEN}",
