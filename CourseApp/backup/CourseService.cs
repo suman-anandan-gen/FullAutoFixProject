@@ -4,21 +4,20 @@ using System.Collections.Generic;
 
 public class CourseService
 {
-public void Divide()
-{
-try
-{
-int a = 10;
-int b = 0;
-if(b != 0)
-int result = a / b;
-}
-catch (DivideByZeroException ex)
-{
-Logger.LogError(ex);
-throw;
-}
-}
+    public void Divide()
+    {
+        try
+        {
+            int a = 10;
+            int b = 0;
+            int result = a / b; // DivideByZeroException
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex);
+            throw;
+        }
+    }
 
 public void NullCheck()
 {
