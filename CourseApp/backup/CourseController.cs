@@ -9,18 +9,12 @@ public void HandleRequest()
         string[] courses = new string[2];
         if (courses.Length > 5)
         {
-            int index = 5;
-            Console.WriteLine(courses[index]); // Convert string to integer before using as an array index
+            Console.WriteLine(courses[5]);
         }
         else
         {
             Console.WriteLine("There are only " + courses.Length + " elements in the array.");
         }
-    }
-    catch (FormatException ex)
-    {
-        Logger.LogError(ex);
-        throw; // Optionally rethrow or handle as needed
     }
     catch (Exception ex)
     {
